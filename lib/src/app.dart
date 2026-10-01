@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'config/app_config.dart';
-import 'features/home/home_page.dart';
+import 'features/auth/login_page.dart';
 
 class MoviCreditoApp extends StatelessWidget {
   const MoviCreditoApp({super.key});
@@ -28,6 +28,17 @@ class MoviCreditoApp extends StatelessWidget {
           surfaceTintColor: Colors.transparent,
           elevation: 0,
         ),
+        inputDecorationTheme: InputDecorationTheme(
+          filled: true,
+          fillColor: Colors.white,
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(18), borderSide: const BorderSide(color: Color(0xFFDDE3EC))),
+          enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(18), borderSide: const BorderSide(color: Color(0xFFDDE3EC))),
+          focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(18), borderSide: const BorderSide(color: primary, width: 1.5)),
+        ),
+        outlinedButtonTheme: OutlinedButtonThemeData(
+          style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(54), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)), textStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
+        ),
         cardTheme: CardThemeData(
           elevation: 0,
           margin: EdgeInsets.zero,
@@ -45,7 +56,7 @@ class MoviCreditoApp extends StatelessWidget {
           ),
         ),
       ),
-      home: const HomePage(),
+      home: const LoginPage(),
       builder: (context, child) {
         if (AppConfig.environmentLabel.toUpperCase() == 'PROD') {
           return child ?? const SizedBox.shrink();
