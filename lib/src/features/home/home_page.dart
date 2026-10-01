@@ -212,11 +212,9 @@ class _CreditHero extends StatelessWidget {
           const SizedBox(height: 22),
           FilledButton(
             onPressed: null,
-            style: ButtonStyle(
+            style: const ButtonStyle(
               backgroundColor: WidgetStatePropertyAll(Colors.white),
               foregroundColor: WidgetStatePropertyAll(Color(0xFF175CD3)),
-              disabledBackgroundColor: WidgetStatePropertyAll(Colors.white),
-              disabledForegroundColor: WidgetStatePropertyAll(Color(0xFF175CD3)),
             ),
             child: const Text('Acceso de clientes próximamente'),
           ),
