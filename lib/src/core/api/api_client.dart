@@ -46,7 +46,10 @@ class ApiClient {
       if (decoded is Map<String, dynamic>) data = decoded;
     }
     if (response.statusCode < 200 || response.statusCode >= 300) {
-      throw ApiException(String(data['message'] ?? 'No fue posible completar la solicitud.'), statusCode: response.statusCode);
+      throw ApiException(
+        (data['message'] ?? 'No fue posible completar la solicitud.').toString(),
+        statusCode: response.statusCode,
+      );
     }
     return data;
   }
