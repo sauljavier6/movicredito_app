@@ -11,6 +11,7 @@ class CreditPage extends StatefulWidget {
 class _CreditPageState extends State<CreditPage> {
   final auth = AuthService();
   Map<String, dynamic>? data;
+  List<dynamic> reminders = [];
   bool loading = true;
   String? error;
 
@@ -18,8 +19,8 @@ class _CreditPageState extends State<CreditPage> {
 
   Future<void> _load() async {
     try {
-      final result = await auth.credit();
-      if (mounted) setState(() { data = result; loading = false; error = null; });
+      final results = await Future.wait([auth.credit(), auth.reminders()]);
+      if (mounted) setState(() { data = results[0]; reminders = (results[1]['items'] as List?) ?? []; loading = false; error = null; });
     } on ApiException catch (e) {
       if (mounted) setState(() { error = e.message; loading = false; });
     } catch (_) {
@@ -46,11 +47,40 @@ class _CreditPageState extends State<CreditPage> {
               const Text('Calendario de pagos', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800)),
               const SizedBox(height: 12),
               if (installments.isEmpty) const Card(child: Padding(padding: EdgeInsets.all(18), child: Text('Todavía no hay parcialidades registradas.'))),
-              ...installments.map((raw) => Padding(padding: const EdgeInsets.only(bottom: 10), child: _InstallmentTile(item: Map<String, dynamic>.from(raw as Map)))),
+              ...installments.map((raw) {
+                final item = Map<String, dynamic>.from(raw as Map);
+                final reminder = reminders.cast<dynamic>().where((r) => (r as Map)['installmentId'] == item['id']).cast<Map>().firstOrNull;
+                return Padding(padding: const EdgeInsets.only(bottom: 10), child: _InstallmentTile(item: item, reminder: reminder == null ? null : Map<String, dynamic>.from(reminder), onReminder: () => _configureReminder(item)));
+              }),
             ],
           ),
         ),
     );
+  }
+
+  Future<void> _configureReminder(Map<String, dynamic> item) async {
+    final days = await showModalBottomSheet<int>(
+      context: context,
+      builder: (context) => SafeArea(child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
+          const Text('Recordarme este pago', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800)),
+          const SizedBox(height: 6),
+          Text('Pago #${item['number']} · vence ${_date(item['dueDate'])}', style: const TextStyle(color: Color(0xFF667085))),
+          const SizedBox(height: 14),
+          ...[0,1,2,3,5,7].map((d) => ListTile(
+            leading: const Icon(Icons.notifications_active_outlined),
+            title: Text(d == 0 ? 'El día del vencimiento' : d == 1 ? '1 día antes' : '$d días antes'),
+            onTap: () => Navigator.pop(context, d),
+          )),
+        ]),
+      )),
+    );
+    if (days == null) return;
+    await auth.setReminder(item['id'].toString(), days);
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(days == 0 ? 'Te avisaremos el día del vencimiento.' : 'Te avisaremos $days día(s) antes.')));
+    await _load();
   }
 }
 
@@ -88,8 +118,10 @@ class _Detail extends StatelessWidget {
 }
 
 class _InstallmentTile extends StatelessWidget {
-  const _InstallmentTile({required this.item});
+  const _InstallmentTile({required this.item, required this.reminder, required this.onReminder});
   final Map<String, dynamic> item;
+  final Map<String, dynamic>? reminder;
+  final VoidCallback onReminder;
   @override Widget build(BuildContext context) {
     final status = item['status']?.toString() ?? 'pending';
     final paid = status == 'paid';
@@ -102,10 +134,13 @@ class _InstallmentTile extends StatelessWidget {
       ),
       title: Text('Pago #${item['number']}', style: const TextStyle(fontWeight: FontWeight.w800)),
       subtitle: Text('${_date(item['dueDate'])} · ${_status(status)}'),
-      trailing: Column(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.end, children: [
-        Text(_money(item['amount']), style: const TextStyle(fontWeight: FontWeight.w800)),
-        if (status == 'partial') Text('Falta ${_money(item['pendingAmount'])}', style: const TextStyle(fontSize: 11, color: Color(0xFFB54708))),
-      ]),
+      trailing: SizedBox(width: 105, child: Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+        Expanded(child: Column(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.end, children: [
+          Text(_money(item['amount']), style: const TextStyle(fontWeight: FontWeight.w800)),
+          if (status == 'partial') Text('Falta ${_money(item['pendingAmount'])}', style: const TextStyle(fontSize: 11, color: Color(0xFFB54708))),
+        ])),
+        if (!paid) IconButton(onPressed: onReminder, tooltip: reminder == null ? 'Programar recordatorio' : 'Cambiar recordatorio', icon: Icon(reminder == null ? Icons.notifications_none_rounded : Icons.notifications_active_rounded, color: const Color(0xFF175CD3))),
+      ])),
     ));
   }
 }
