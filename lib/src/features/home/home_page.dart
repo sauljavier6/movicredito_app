@@ -7,6 +7,8 @@ import '../auth/login_page.dart';
 import '../credit/credit_page.dart';
 import '../payments/payments_page.dart';
 import '../device/device_page.dart';
+import '../profile/profile_page.dart';
+import '../documents/documents_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -279,8 +281,8 @@ class _AppDrawer extends StatelessWidget {
       _DrawerItem(Icons.calendar_month_outlined, 'Calendario de pagos', onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const CreditPage()))),
       _DrawerItem(Icons.receipt_long_outlined, 'Pagos y recibos', onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PaymentsPage()))),
       _DrawerItem(Icons.smartphone_outlined, 'Mi equipo', onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const DevicePage()))),
-      const _DrawerItem(Icons.description_outlined, 'Contrato y documentos'),
-      const _DrawerItem(Icons.person_outline_rounded, 'Mi perfil'),
+      _DrawerItem(Icons.description_outlined, 'Contrato y documentos', onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const DocumentsPage()))),
+      _DrawerItem(Icons.person_outline_rounded, 'Mi perfil', onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfilePage()))),
       const Spacer(),
       const Divider(height: 1),
       const _DrawerItem(Icons.help_outline_rounded, 'Ayuda'),
