@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/refresh/auto_refresh_state.dart';
 import 'package:intl/intl.dart';
 import '../../core/api/api_client.dart';
 import '../auth/auth_service.dart';
@@ -8,7 +9,7 @@ class CreditPage extends StatefulWidget {
   @override State<CreditPage> createState() => _CreditPageState();
 }
 
-class _CreditPageState extends State<CreditPage> {
+class _CreditPageState extends State<CreditPage> with AutoRefreshState<CreditPage> {
   final auth = AuthService();
   Map<String, dynamic>? data;
   List<dynamic> reminders = [];
@@ -16,6 +17,9 @@ class _CreditPageState extends State<CreditPage> {
   String? error;
 
   @override void initState() { super.initState(); _load(); }
+
+  @override
+  Future<void> refreshData() => _load();
 
   Future<void> _load() async {
     try {
