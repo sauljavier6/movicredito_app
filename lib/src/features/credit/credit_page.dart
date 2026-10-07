@@ -49,8 +49,12 @@ class _CreditPageState extends State<CreditPage> {
               if (installments.isEmpty) const Card(child: Padding(padding: EdgeInsets.all(18), child: Text('Todavía no hay parcialidades registradas.'))),
               ...installments.map((raw) {
                 final item = Map<String, dynamic>.from(raw as Map);
-                final reminder = reminders.cast<dynamic>().where((r) => (r as Map)['installmentId'] == item['id']).cast<Map>().firstOrNull;
-                return Padding(padding: const EdgeInsets.only(bottom: 10), child: _InstallmentTile(item: item, reminder: reminder == null ? null : Map<String, dynamic>.from(reminder), onReminder: () => _configureReminder(item)));
+                Map<String, dynamic>? reminder;
+                for (final rawReminder in reminders) {
+                  final candidate = Map<String, dynamic>.from(rawReminder as Map);
+                  if (candidate['installmentId'] == item['id']) { reminder = candidate; break; }
+                }
+                return Padding(padding: const EdgeInsets.only(bottom: 10), child: _InstallmentTile(item: item, reminder: reminder, onReminder: () => _configureReminder(item)));
               }),
             ],
           ),
