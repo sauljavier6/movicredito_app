@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/refresh/auto_refresh_state.dart';
 import 'package:intl/intl.dart';
 
 import '../auth/auth_service.dart';
@@ -10,7 +11,7 @@ class SupportCenterPage extends StatefulWidget {
   State<SupportCenterPage> createState() => _SupportCenterPageState();
 }
 
-class _SupportCenterPageState extends State<SupportCenterPage> {
+class _SupportCenterPageState extends State<SupportCenterPage> with AutoRefreshState<SupportCenterPage> {
   final auth = AuthService();
 
   List<dynamic> tickets = [];
@@ -23,6 +24,12 @@ class _SupportCenterPageState extends State<SupportCenterPage> {
     super.initState();
     _load();
   }
+
+  @override
+  Duration get autoRefreshInterval => const Duration(seconds: 7);
+
+  @override
+  Future<void> refreshData() => _load();
 
   Future<void> _load() async {
     try {
@@ -251,7 +258,7 @@ class SupportThreadPage extends StatefulWidget {
   State<SupportThreadPage> createState() => _SupportThreadPageState();
 }
 
-class _SupportThreadPageState extends State<SupportThreadPage> {
+class _SupportThreadPageState extends State<SupportThreadPage> with AutoRefreshState<SupportThreadPage> {
   final auth = AuthService();
   final input = TextEditingController();
 
@@ -271,6 +278,12 @@ class _SupportThreadPageState extends State<SupportThreadPage> {
     input.dispose();
     super.dispose();
   }
+
+  @override
+  Duration get autoRefreshInterval => const Duration(seconds: 5);
+
+  @override
+  Future<void> refreshData() => _load();
 
   Future<void> _load() async {
     try {
