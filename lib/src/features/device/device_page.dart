@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/refresh/auto_refresh_state.dart';
 import '../../widgets/app_drawer.dart';
 import '../auth/auth_service.dart';
 import '../home/home_page.dart';
@@ -8,11 +9,12 @@ class DevicePage extends StatefulWidget {
   const DevicePage({super.key});
   @override State<DevicePage> createState() => _DevicePageState();
 }
-class _DevicePageState extends State<DevicePage> {
+class _DevicePageState extends State<DevicePage> with AutoRefreshState<DevicePage> {
   final auth = AuthService();
   Map<String,dynamic>? device;
   bool loading=true;
   @override void initState(){super.initState();_load();}
+  @override Future<void> refreshData() => _load();
   Future<void> _load() async { try { final d=await auth.summary(); if(mounted)setState((){device=d['device'] as Map<String,dynamic>?;loading=false;}); } catch(_){if(mounted)setState(()=>loading=false);} }
   @override Widget build(BuildContext context)=>Scaffold(
     drawer: const AppDrawer(currentSection: 'device'),
