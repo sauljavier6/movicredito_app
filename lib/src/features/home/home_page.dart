@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../core/api/api_client.dart';
+import '../../core/refresh/auto_refresh_state.dart';
 import '../../widgets/brand_logo.dart';
 import '../../widgets/app_drawer.dart';
 import '../auth/auth_service.dart';
@@ -16,7 +17,7 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage> with AutoRefreshState<HomePage> {
   final auth = AuthService();
   Map<String, dynamic>? customer;
   Map<String, dynamic>? summary;
@@ -29,8 +30,11 @@ class _HomePageState extends State<HomePage> {
     _load();
   }
 
-  Future<void> _load() async {
-    if (mounted) setState(() { loading = true; error = null; });
+  @override
+  Future<void> refreshData() => _load(silent: true);
+
+  Future<void> _load({bool silent = false}) async {
+    if (!silent && mounted) setState(() { loading = true; error = null; });
     try {
       final results = await Future.wait([auth.me(), auth.summary()]);
       if (!mounted) return;
