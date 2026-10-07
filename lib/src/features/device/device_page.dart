@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../auth/auth_service.dart';
+import '../home/home_page.dart';
+import '../payments/payments_page.dart';
 
 class DevicePage extends StatefulWidget {
   const DevicePage({super.key});
@@ -27,6 +29,18 @@ class _DevicePageState extends State<DevicePage> {
             _row('Administración',device!['managementStatus']),
           ]))),
         ]),
+    bottomNavigationBar: NavigationBar(
+      selectedIndex: 2,
+      onDestinationSelected: (index) {
+        if (index == 0) Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const HomePage()));
+        if (index == 1) Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const PaymentsPage()));
+      },
+      destinations: const [
+        NavigationDestination(icon: Icon(Icons.home_outlined), label: 'Inicio'),
+        NavigationDestination(icon: Icon(Icons.payments_outlined), label: 'Pagos'),
+        NavigationDestination(icon: Icon(Icons.smartphone_outlined), selectedIcon: Icon(Icons.smartphone_rounded), label: 'Mi equipo'),
+      ],
+    ),
   );
   Widget _row(String label,dynamic value)=>Padding(padding:const EdgeInsets.symmetric(vertical:9),child:Row(children:[Expanded(child:Text(label,style:const TextStyle(color:Color(0xFF667085)))),Text((value??'—').toString(),style:const TextStyle(fontWeight:FontWeight.w700))]));
 }
