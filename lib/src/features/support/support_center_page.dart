@@ -337,6 +337,7 @@ class SupportThreadPage extends StatefulWidget {
 class _SupportThreadPageState extends State<SupportThreadPage> with AutoRefreshState<SupportThreadPage> {
   final auth = AuthService();
   final input = TextEditingController();
+  final scrollController = ScrollController();
 
   List<dynamic> messages = [];
   bool loading = true;
@@ -352,6 +353,7 @@ class _SupportThreadPageState extends State<SupportThreadPage> with AutoRefreshS
   @override
   void dispose() {
     input.dispose();
+    scrollController.dispose();
     super.dispose();
   }
 
@@ -366,11 +368,26 @@ class _SupportThreadPageState extends State<SupportThreadPage> with AutoRefreshS
       final data =
           await auth.supportMessages(widget.ticket['id'].toString());
       if (!mounted) return;
+
+      final nextMessages = (data['messages'] as List?) ?? [];
+      final previousLastId = messages.isEmpty
+          ? null
+          : (messages.last as Map)['id']?.toString();
+      final nextLastId = nextMessages.isEmpty
+          ? null
+          : (nextMessages.last as Map)['id']?.toString();
+      final shouldScroll =
+          loading || (nextLastId != null && nextLastId != previousLastId);
+
       setState(() {
-        messages = (data['messages'] as List?) ?? [];
+        messages = nextMessages;
         loading = false;
         error = null;
       });
+
+      if (shouldScroll) {
+        _scrollToBottom();
+      }
     } catch (_) {
       if (!mounted) return;
       setState(() {
@@ -378,6 +395,17 @@ class _SupportThreadPageState extends State<SupportThreadPage> with AutoRefreshS
         error = 'No pudimos cargar la conversación.';
       });
     }
+  }
+
+  void _scrollToBottom() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || !scrollController.hasClients) return;
+      scrollController.animateTo(
+        scrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 260),
+        curve: Curves.easeOut,
+      );
+    });
   }
 
   Future<void> _send() async {
@@ -396,6 +424,7 @@ class _SupportThreadPageState extends State<SupportThreadPage> with AutoRefreshS
       sending = true;
       messages = [...messages, optimistic];
     });
+    _scrollToBottom();
 
     try {
       await auth.replySupport(widget.ticket['id'].toString(), text);
@@ -433,6 +462,7 @@ class _SupportThreadPageState extends State<SupportThreadPage> with AutoRefreshS
                 : error != null
                     ? _SupportError(message: error!, onRetry: _load)
                     : ListView.builder(
+                        controller: scrollController,
                         padding: const EdgeInsets.all(16),
                         itemCount: messages.length,
                         itemBuilder: (context, index) {
