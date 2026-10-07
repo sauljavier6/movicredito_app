@@ -39,6 +39,14 @@ class ApiClient {
     return _decode(response);
   }
 
+  Future<Map<String, dynamic>> deleteJson(String path, {bool authenticated = false}) async {
+    final response = await _client.delete(
+      Uri.parse('${AppConfig.apiUrl}$path'),
+      headers: await _headers(authenticated),
+    );
+    return _decode(response);
+  }
+
   Future<Map<String, String>> _headers(bool authenticated) async {
     final headers = <String, String>{'Content-Type': 'application/json', 'Accept': 'application/json'};
     if (authenticated) {
