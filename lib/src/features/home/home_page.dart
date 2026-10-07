@@ -2,14 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../core/api/api_client.dart';
 import '../../widgets/brand_logo.dart';
+import '../../widgets/app_drawer.dart';
 import '../auth/auth_service.dart';
 import '../auth/login_page.dart';
-import '../credit/credit_page.dart';
 import '../payments/payments_page.dart';
 import '../payments/payment_checkout_page.dart';
 import '../device/device_page.dart';
-import '../profile/profile_page.dart';
-import '../documents/documents_page.dart';
 import '../support/support_center_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -54,11 +52,6 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  Future<void> _logout() async {
-    await auth.logout();
-    if (!mounted) return;
-    Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => const LoginPage()), (_) => false);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -69,7 +62,7 @@ class _HomePageState extends State<HomePage> {
     final firstName = fullName.isEmpty ? '' : _capitalize(fullName.split(RegExp(r'\s+')).first);
 
     return Scaffold(
-      drawer: _AppDrawer(customer: customer, onLogout: _logout),
+      drawer: AppDrawer(customer: customer, currentSection: 'home'),
       appBar: AppBar(
         titleSpacing: 0,
         title: const Row(children: [
@@ -265,73 +258,3 @@ class _ErrorState extends StatelessWidget {
   ));
 }
 
-class _AppDrawer extends StatelessWidget {
-  const _AppDrawer({required this.customer, required this.onLogout});
-  final Map<String, dynamic>? customer;
-  final Future<void> Function() onLogout;
-
-  @override
-  Widget build(BuildContext context) {
-    final name = customer?['fullName']?.toString() ?? 'Mi cuenta';
-    final number = customer?['customerNumber']?.toString() ?? '';
-    return Drawer(
-      child: SafeArea(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
-              child: Row(children: [
-                const BrandLogo(size: 54, borderRadius: 16),
-                const SizedBox(width: 12),
-                Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Text(name, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
-                  if (number.isNotEmpty) Text('Cliente $number', style: const TextStyle(color: Color(0xFF667085), fontSize: 12)),
-                ])),
-              ]),
-            ),
-            const Divider(height: 1),
-            const SizedBox(height: 8),
-            const _DrawerItem(Icons.home_outlined, 'Inicio'),
-            _DrawerItem(Icons.account_balance_wallet_outlined, 'Mi crédito', onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const CreditPage()))),
-            _DrawerItem(Icons.calendar_month_outlined, 'Calendario de pagos', onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const CreditPage()))),
-            _DrawerItem(Icons.receipt_long_outlined, 'Pagos y recibos', onTap: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const PaymentsPage()))),
-            _DrawerItem(Icons.smartphone_outlined, 'Mi equipo', onTap: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const DevicePage()))),
-            _DrawerItem(Icons.description_outlined, 'Contrato y documentos', onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const DocumentsPage()))),
-            _DrawerItem(Icons.person_outline_rounded, 'Mi perfil', onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfilePage()))),
-            const Padding(
-              padding: EdgeInsets.fromLTRB(20, 18, 20, 6),
-              child: Text('AYUDA', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, letterSpacing: .8, color: Color(0xFF98A2B3))),
-            ),
-            _DrawerItem(Icons.help_outline_rounded, 'Ayuda y soporte', onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SupportCenterPage()))),
-            const Divider(height: 24),
-            ListTile(
-              contentPadding: const EdgeInsets.symmetric(horizontal: 20),
-              leading: const Icon(Icons.logout_rounded, color: Color(0xFF475467)),
-              title: const Text('Cerrar sesión', style: TextStyle(fontWeight: FontWeight.w600)),
-              onTap: () async { Navigator.pop(context); await onLogout(); },
-            ),
-            const SizedBox(height: 12),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _DrawerItem extends StatelessWidget {
-  const _DrawerItem(this.icon, this.label, {this.onTap});
-  final IconData icon;
-  final String label;
-  final VoidCallback? onTap;
-  @override
-  Widget build(BuildContext context) => ListTile(
-    contentPadding: const EdgeInsets.symmetric(horizontal: 20),
-    leading: Icon(icon, color: const Color(0xFF475467)),
-    title: Text(label, style: const TextStyle(fontWeight: FontWeight.w600)),
-    onTap: () {
-      Navigator.pop(context);
-      onTap?.call();
-    },
-  );
-}
