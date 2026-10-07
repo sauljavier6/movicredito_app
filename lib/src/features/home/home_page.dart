@@ -5,6 +5,8 @@ import '../../widgets/brand_logo.dart';
 import '../auth/auth_service.dart';
 import '../auth/login_page.dart';
 import '../credit/credit_page.dart';
+import '../payments/payments_page.dart';
+import '../device/device_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -103,6 +105,10 @@ class _HomePageState extends State<HomePage> {
                 ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: 0,
+        onDestinationSelected: (index) {
+          if (index == 1) Navigator.push(context, MaterialPageRoute(builder: (_) => const PaymentsPage()));
+          if (index == 2) Navigator.push(context, MaterialPageRoute(builder: (_) => const DevicePage()));
+        },
         destinations: [
           NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: Icon(Icons.home_rounded), label: 'Inicio'),
           NavigationDestination(icon: Icon(Icons.payments_outlined), label: 'Pagos'),
@@ -271,8 +277,8 @@ class _AppDrawer extends StatelessWidget {
       const _DrawerItem(Icons.home_outlined, 'Inicio'),
       _DrawerItem(Icons.account_balance_wallet_outlined, 'Mi crédito', onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const CreditPage()))),
       _DrawerItem(Icons.calendar_month_outlined, 'Calendario de pagos', onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const CreditPage()))),
-      const _DrawerItem(Icons.receipt_long_outlined, 'Pagos y recibos'),
-      const _DrawerItem(Icons.smartphone_outlined, 'Mi equipo'),
+      _DrawerItem(Icons.receipt_long_outlined, 'Pagos y recibos', onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PaymentsPage()))),
+      _DrawerItem(Icons.smartphone_outlined, 'Mi equipo', onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const DevicePage()))),
       const _DrawerItem(Icons.description_outlined, 'Contrato y documentos'),
       const _DrawerItem(Icons.person_outline_rounded, 'Mi perfil'),
       const Spacer(),
