@@ -4,6 +4,7 @@ import '../../core/api/api_client.dart';
 import '../../widgets/brand_logo.dart';
 import '../auth/auth_service.dart';
 import '../auth/login_page.dart';
+import '../credit/credit_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -268,8 +269,8 @@ class _AppDrawer extends StatelessWidget {
       const Divider(height: 1),
       const SizedBox(height: 8),
       const _DrawerItem(Icons.home_outlined, 'Inicio'),
-      const _DrawerItem(Icons.account_balance_wallet_outlined, 'Mi crédito'),
-      const _DrawerItem(Icons.calendar_month_outlined, 'Calendario de pagos'),
+      _DrawerItem(Icons.account_balance_wallet_outlined, 'Mi crédito', onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const CreditPage()))),
+      _DrawerItem(Icons.calendar_month_outlined, 'Calendario de pagos', onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const CreditPage()))),
       const _DrawerItem(Icons.receipt_long_outlined, 'Pagos y recibos'),
       const _DrawerItem(Icons.smartphone_outlined, 'Mi equipo'),
       const _DrawerItem(Icons.description_outlined, 'Contrato y documentos'),
@@ -289,14 +290,18 @@ class _AppDrawer extends StatelessWidget {
 }
 
 class _DrawerItem extends StatelessWidget {
-  const _DrawerItem(this.icon, this.label);
+  const _DrawerItem(this.icon, this.label, {this.onTap});
   final IconData icon;
   final String label;
+  final VoidCallback? onTap;
   @override
   Widget build(BuildContext context) => ListTile(
     contentPadding: const EdgeInsets.symmetric(horizontal: 20),
     leading: Icon(icon, color: const Color(0xFF475467)),
     title: Text(label, style: const TextStyle(fontWeight: FontWeight.w600)),
-    onTap: () => Navigator.pop(context),
+    onTap: () {
+      Navigator.pop(context);
+      onTap?.call();
+    },
   );
 }
