@@ -218,54 +218,103 @@ class _SupportCenterPageState extends State<SupportCenterPage> with AutoRefreshS
               Map<String, dynamic>.from(notifications[index] as Map);
           final read = notification['read'] == true;
 
-          return Card(
-            margin: const EdgeInsets.only(bottom: 10),
-            child: ListTile(
-              contentPadding: const EdgeInsets.all(16),
-              leading: Icon(
-                read
-                    ? Icons.notifications_none_rounded
-                    : Icons.notifications_active_rounded,
-                color: const Color(0xFF175CD3),
+          final notificationId = notification['id'].toString();
+
+          return Dismissible(
+            key: ValueKey(notificationId),
+            direction: DismissDirection.endToStart,
+            background: Container(
+              margin: const EdgeInsets.only(bottom: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 22),
+              alignment: Alignment.centerRight,
+              decoration: BoxDecoration(
+                color: const Color(0xFFD92D20),
+                borderRadius: BorderRadius.circular(12),
               ),
-              title: Text(
-                notification['title']?.toString() ?? '',
-                style: TextStyle(
-                  fontWeight: read ? FontWeight.w600 : FontWeight.w800,
+              child: const Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Text(
+                    'Quitar',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  SizedBox(width: 8),
+                  Icon(Icons.delete_outline_rounded, color: Colors.white),
+                ],
+              ),
+            ),
+            onDismissed: (_) async {
+              final removed = notification;
+              final removedIndex = index;
+              setState(() => notifications.removeAt(index));
+
+              try {
+                await auth.dismissNotification(notificationId);
+              } catch (_) {
+                if (!mounted) return;
+                setState(() {
+                  final restoreAt = removedIndex.clamp(0, notifications.length);
+                  notifications.insert(restoreAt, removed);
+                });
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('No fue posible quitar la notificación.'),
+                  ),
+                );
+              }
+            },
+            child: Card(
+              margin: const EdgeInsets.only(bottom: 10),
+              child: ListTile(
+                contentPadding: const EdgeInsets.all(16),
+                leading: Icon(
+                  read
+                      ? Icons.notifications_none_rounded
+                      : Icons.notifications_active_rounded,
+                  color: const Color(0xFF175CD3),
                 ),
-              ),
-              subtitle: Padding(
-                padding: const EdgeInsets.only(top: 5),
-                child: Text(
-                  '${notification['body'] ?? ''}\n'
-                  '${_date(notification['createdAt'])}',
+                title: Text(
+                  notification['title']?.toString() ?? '',
+                  style: TextStyle(
+                    fontWeight: read ? FontWeight.w600 : FontWeight.w800,
+                  ),
                 ),
-              ),
-              onTap: () async {
-                if (!read) {
-                  await auth.readNotification(notification['id'].toString());
-                  if (!mounted) return;
-                  await _load();
-                }
-                final referenceId = notification['referenceId']?.toString();
-                if (notification['referenceType'] == 'support_ticket' && referenceId != null) {
-                  Map<String, dynamic>? ticket;
-                  for (final raw in tickets) {
-                    final candidate = Map<String, dynamic>.from(raw as Map);
-                    if (candidate['id']?.toString() == referenceId) {
-                      ticket = candidate;
-                      break;
-                    }
-                  }
-                  if (ticket != null && mounted) {
-                    await Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => SupportThreadPage(ticket: ticket!)),
-                    );
+                subtitle: Padding(
+                  padding: const EdgeInsets.only(top: 5),
+                  child: Text(
+                    '${notification['body'] ?? ''}\n'
+                    '${_date(notification['createdAt'])}',
+                  ),
+                ),
+                onTap: () async {
+                  if (!read) {
+                    await auth.readNotification(notificationId);
+                    if (!mounted) return;
                     await _load();
                   }
-                }
-              },
+                  final referenceId = notification['referenceId']?.toString();
+                  if (notification['referenceType'] == 'support_ticket' && referenceId != null) {
+                    Map<String, dynamic>? ticket;
+                    for (final raw in tickets) {
+                      final candidate = Map<String, dynamic>.from(raw as Map);
+                      if (candidate['id']?.toString() == referenceId) {
+                        ticket = candidate;
+                        break;
+                      }
+                    }
+                    if (ticket != null && mounted) {
+                      await Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => SupportThreadPage(ticket: ticket!)),
+                      );
+                      await _load();
+                    }
+                  }
+                },
+              ),
             ),
           );
         },
