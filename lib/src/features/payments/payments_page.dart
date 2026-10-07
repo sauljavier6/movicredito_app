@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../core/api/api_client.dart';
+import '../../core/refresh/auto_refresh_state.dart';
 import '../../widgets/app_drawer.dart';
 import '../auth/auth_service.dart';
 import 'payment_checkout_page.dart';
@@ -12,13 +13,16 @@ class PaymentsPage extends StatefulWidget {
   @override State<PaymentsPage> createState() => _PaymentsPageState();
 }
 
-class _PaymentsPageState extends State<PaymentsPage> {
+class _PaymentsPageState extends State<PaymentsPage> with AutoRefreshState<PaymentsPage> {
   final auth = AuthService();
   List<dynamic> payments = [];
   bool loading = true;
   String? error;
 
   @override void initState() { super.initState(); _load(); }
+
+  @override
+  Future<void> refreshData() => _load();
 
   Future<void> _load() async {
     try {
