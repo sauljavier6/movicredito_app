@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../widgets/app_drawer.dart';
 import '../auth/auth_service.dart';
 import '../home/home_page.dart';
 import '../payments/payments_page.dart';
@@ -14,6 +15,7 @@ class _DevicePageState extends State<DevicePage> {
   @override void initState(){super.initState();_load();}
   Future<void> _load() async { try { final d=await auth.summary(); if(mounted)setState((){device=d['device'] as Map<String,dynamic>?;loading=false;}); } catch(_){if(mounted)setState(()=>loading=false);} }
   @override Widget build(BuildContext context)=>Scaffold(
+    drawer: const AppDrawer(currentSection: 'device'),
     appBar: AppBar(title: const Text('Mi equipo',style:TextStyle(fontWeight:FontWeight.w800))),
     body: loading?const Center(child:CircularProgressIndicator()):device==null
       ? const Center(child:Padding(padding:EdgeInsets.all(24),child:Text('No hay un equipo asociado a tu crédito.',textAlign:TextAlign.center)))
