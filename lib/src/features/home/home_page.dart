@@ -75,7 +75,7 @@ class _HomePageState extends State<HomePage> with AutoRefreshState<HomePage> {
           SizedBox(width: 10),
           Text('MoviCrédito', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 19)),
         ]),
-        actions: [IconButton(onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SupportCenterPage())), tooltip: 'Notificaciones y ayuda', icon: const Icon(Icons.notifications_none_rounded)), IconButton(onPressed: _load, tooltip: 'Actualizar', icon: const Icon(Icons.refresh_rounded)), const SizedBox(width: 8)],
+        actions: [IconButton(onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SupportCenterPage())), tooltip: 'Notificaciones y ayuda', icon: const Icon(Icons.notifications_none_rounded)), const SizedBox(width: 8)],
       ),
       body: loading
           ? const Center(child: CircularProgressIndicator())
