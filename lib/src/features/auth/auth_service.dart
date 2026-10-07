@@ -29,6 +29,8 @@ class AuthService {
   Future<Map<String, dynamic>> credit() => api.getJson('/api/customer-auth/credit', authenticated: true);
   Future<Map<String, dynamic>> payments() => api.getJson('/api/customer-auth/payments', authenticated: true);
   Future<Map<String, dynamic>> documents() => api.getJson('/api/customer-auth/documents', authenticated: true);
+  Future<Map<String, dynamic>> createPaymentCheckout() => api.postJson('/api/customer-auth/payment-checkout', {}, authenticated: true);
+  Future<Map<String, dynamic>> syncPaymentCheckout(String id) => api.postJson('/api/customer-auth/payment-checkout/$id/sync', {}, authenticated: true);
 
   Future<bool> hasSession() async {
     final token = await api.readToken();
