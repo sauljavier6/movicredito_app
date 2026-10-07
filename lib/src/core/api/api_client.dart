@@ -30,6 +30,15 @@ class ApiClient {
     return _decode(response);
   }
 
+  Future<Map<String, dynamic>> patchJson(String path, Map<String, dynamic> body, {bool authenticated = false}) async {
+    final response = await _client.patch(
+      Uri.parse('${AppConfig.apiUrl}$path'),
+      headers: await _headers(authenticated),
+      body: jsonEncode(body),
+    );
+    return _decode(response);
+  }
+
   Future<Map<String, String>> _headers(bool authenticated) async {
     final headers = <String, String>{'Content-Type': 'application/json', 'Accept': 'application/json'};
     if (authenticated) {
