@@ -36,6 +36,8 @@ class AuthService {
   Future<Map<String, dynamic>> supportMessages(String id) => api.getJson('/api/customer-auth/support/$id/messages', authenticated: true);
   Future<Map<String, dynamic>> replySupport(String id, String message) => api.postJson('/api/customer-auth/support/$id/messages', {'message': message}, authenticated: true);
   Future<Map<String, dynamic>> notifications() => api.getJson('/api/customer-auth/notifications', authenticated: true);
+  Future<Map<String, dynamic>> reminders() => api.getJson('/api/customer-auth/reminders', authenticated: true);
+  Future<Map<String, dynamic>> setReminder(String installmentId, int daysBefore) => api.postJson('/api/customer-auth/reminders', {'installmentId': installmentId, 'daysBefore': daysBefore}, authenticated: true);
 
   Future<bool> hasSession() async {
     final token = await api.readToken();
