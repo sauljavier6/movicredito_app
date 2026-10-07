@@ -100,7 +100,7 @@ class _HomePageState extends State<HomePage> {
                     ],
                   ),
                 ),
-      bottomNavigationBar: const NavigationBar(
+      bottomNavigationBar: NavigationBar(
         selectedIndex: 0,
         destinations: [
           NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: Icon(Icons.home_rounded), label: 'Inicio'),
