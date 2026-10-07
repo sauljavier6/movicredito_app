@@ -6,6 +6,7 @@ import '../auth/auth_service.dart';
 import '../auth/login_page.dart';
 import '../credit/credit_page.dart';
 import '../payments/payments_page.dart';
+import '../payments/payment_checkout_page.dart';
 import '../device/device_page.dart';
 import '../profile/profile_page.dart';
 import '../documents/documents_page.dart';
@@ -165,7 +166,13 @@ class _CreditCard extends StatelessWidget {
               Text(installment == null ? 'No tienes pagos pendientes.' : 'Vence el ${_date(installment!['dueDate'])}', style: const TextStyle(color: Color(0xFFDCE8FF), height: 1.35)),
               const SizedBox(height: 20),
               SizedBox(width: double.infinity, child: FilledButton(
-                onPressed: installment == null ? null : () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('El pago desde la app será el siguiente módulo.'))),
+                onPressed: installment == null ? null : () async {
+                  final paid = await Navigator.push<bool>(context, MaterialPageRoute(builder: (_) => const PaymentCheckoutPage()));
+                  if (paid == true && context.mounted) {
+                    final state = context.findAncestorStateOfType<_HomePageState>();
+                    await state?._load();
+                  }
+                },
                 style: const ButtonStyle(backgroundColor: WidgetStatePropertyAll(Colors.white), foregroundColor: WidgetStatePropertyAll(Color(0xFF175CD3))),
                 child: const Text('Pagar'),
               )),
