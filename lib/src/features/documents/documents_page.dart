@@ -2,14 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../core/api/api_client.dart';
 import '../auth/auth_service.dart';
+import '../../core/refresh/auto_refresh_state.dart';
 
 class DocumentsPage extends StatefulWidget {
   const DocumentsPage({super.key});
   @override State<DocumentsPage> createState()=>_DocumentsPageState();
 }
-class _DocumentsPageState extends State<DocumentsPage>{
+class _DocumentsPageState extends State<DocumentsPage> with AutoRefreshState<DocumentsPage>{
   final auth=AuthService(); List<dynamic> contracts=[]; bool loading=true; String? error;
   @override void initState(){super.initState();_load();}
+  @override Future<void> refreshData()=>_load();
   Future<void> _load() async {try{final d=await auth.documents();if(mounted)setState((){contracts=(d['contracts'] as List?)??[];loading=false;error=null;});}on ApiException catch(e){if(mounted)setState((){error=e.message;loading=false;});}catch(_){if(mounted)setState((){error='No pudimos cargar tus documentos.';loading=false;});}}
   @override Widget build(BuildContext context)=>Scaffold(
     appBar:AppBar(title:const Text('Contrato y documentos',style:TextStyle(fontWeight:FontWeight.w800))),
