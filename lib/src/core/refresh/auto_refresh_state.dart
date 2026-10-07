@@ -2,8 +2,20 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+class DataRefreshBus {
+  DataRefreshBus._();
+  static final DataRefreshBus instance = DataRefreshBus._();
+
+  final StreamController<void> _controller = StreamController<void>.broadcast();
+
+  Stream<void> get changes => _controller.stream;
+
+  void invalidate() => _controller.add(null);
+}
+
 mixin AutoRefreshState<T extends StatefulWidget> on State<T>, WidgetsBindingObserver {
   Timer? _autoRefreshTimer;
+  StreamSubscription<void>? _refreshSubscription;
   bool _autoRefreshRunning = false;
 
   Duration get autoRefreshInterval => const Duration(seconds: 15);
@@ -14,6 +26,7 @@ mixin AutoRefreshState<T extends StatefulWidget> on State<T>, WidgetsBindingObse
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    _refreshSubscription = DataRefreshBus.instance.changes.listen((_) => _runAutoRefresh());
     _autoRefreshTimer = Timer.periodic(autoRefreshInterval, (_) => _runAutoRefresh());
   }
 
@@ -37,6 +50,7 @@ mixin AutoRefreshState<T extends StatefulWidget> on State<T>, WidgetsBindingObse
   @override
   void dispose() {
     _autoRefreshTimer?.cancel();
+    _refreshSubscription?.cancel();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
