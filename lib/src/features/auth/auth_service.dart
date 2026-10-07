@@ -54,6 +54,11 @@ class AuthService {
     DataRefreshBus.instance.invalidate();
     return data;
   }
+  Future<Map<String, dynamic>> dismissNotification(String id) async {
+    final data = await api.deleteJson('/api/customer-auth/notifications/$id', authenticated: true);
+    DataRefreshBus.instance.invalidate();
+    return data;
+  }
   Future<Map<String, dynamic>> reminders() => api.getJson('/api/customer-auth/reminders', authenticated: true);
   Future<Map<String, dynamic>> setReminder(String installmentId, int daysBefore) async {
     final data = await api.postJson('/api/customer-auth/reminders', {'installmentId': installmentId, 'daysBefore': daysBefore}, authenticated: true);
