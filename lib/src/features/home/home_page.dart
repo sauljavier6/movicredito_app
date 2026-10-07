@@ -10,6 +10,7 @@ import '../payments/payment_checkout_page.dart';
 import '../device/device_page.dart';
 import '../profile/profile_page.dart';
 import '../documents/documents_page.dart';
+import '../support/support_center_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -76,7 +77,7 @@ class _HomePageState extends State<HomePage> {
           SizedBox(width: 10),
           Text('MoviCrédito', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 19)),
         ]),
-        actions: [IconButton(onPressed: _load, tooltip: 'Actualizar', icon: const Icon(Icons.refresh_rounded)), const SizedBox(width: 8)],
+        actions: [IconButton(onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SupportCenterPage())), tooltip: 'Notificaciones y ayuda', icon: const Icon(Icons.notifications_none_rounded)), IconButton(onPressed: _load, tooltip: 'Actualizar', icon: const Icon(Icons.refresh_rounded)), const SizedBox(width: 8)],
       ),
       body: loading
           ? const Center(child: CircularProgressIndicator())
@@ -214,18 +215,22 @@ class _DeviceCard extends StatelessWidget {
     final details = device == null
         ? 'No hay un equipo asociado al crédito activo.'
         : [device!['storage'], device!['color']].where((e) => e != null && e.toString().trim().isNotEmpty).join(' · ');
-    return Card(child: Padding(
-      padding: const EdgeInsets.all(18),
-      child: Row(children: [
-        Container(width: 54, height: 54, decoration: BoxDecoration(color: const Color(0xFFEEF4FF), borderRadius: BorderRadius.circular(16)), child: const Icon(Icons.smartphone_rounded, color: Color(0xFF175CD3), size: 28)),
-        const SizedBox(width: 14),
-        Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(title.isEmpty ? 'Mi equipo' : title, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
-          const SizedBox(height: 4),
-          Text(details.isEmpty ? 'Equipo financiado' : details, style: const TextStyle(color: Color(0xFF667085), fontSize: 13)),
-        ])),
-        const Icon(Icons.chevron_right_rounded, color: Color(0xFF98A2B3)),
-      ]),
+    return Card(child: InkWell(
+      borderRadius: BorderRadius.circular(24),
+      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const DevicePage())),
+      child: Padding(
+        padding: const EdgeInsets.all(18),
+        child: Row(children: [
+          Container(width: 54, height: 54, decoration: BoxDecoration(color: const Color(0xFFEEF4FF), borderRadius: BorderRadius.circular(16)), child: const Icon(Icons.smartphone_rounded, color: Color(0xFF175CD3), size: 28)),
+          const SizedBox(width: 14),
+          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(title.isEmpty ? 'Mi equipo' : title, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
+            const SizedBox(height: 4),
+            Text(details.isEmpty ? 'Equipo financiado' : details, style: const TextStyle(color: Color(0xFF667085), fontSize: 13)),
+          ])),
+          const Icon(Icons.chevron_right_rounded, color: Color(0xFF98A2B3)),
+        ]),
+      ),
     ));
   }
 }
@@ -292,7 +297,7 @@ class _AppDrawer extends StatelessWidget {
       _DrawerItem(Icons.person_outline_rounded, 'Mi perfil', onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfilePage()))),
       const Spacer(),
       const Divider(height: 1),
-      const _DrawerItem(Icons.help_outline_rounded, 'Ayuda'),
+      _DrawerItem(Icons.help_outline_rounded, 'Ayuda y soporte', onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SupportCenterPage()))),
       ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 20),
         leading: const Icon(Icons.logout_rounded, color: Color(0xFF475467)),
