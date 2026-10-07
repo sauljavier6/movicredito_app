@@ -13,9 +13,10 @@ class DataRefreshBus {
   void invalidate() => _controller.add(null);
 }
 
-mixin AutoRefreshState<T extends StatefulWidget> on State<T>, WidgetsBindingObserver {
+mixin AutoRefreshState<T extends StatefulWidget> on State<T> {
   Timer? _autoRefreshTimer;
   StreamSubscription<void>? _refreshSubscription;
+  AppLifecycleListener? _lifecycleListener;
   bool _autoRefreshRunning = false;
 
   Duration get autoRefreshInterval => const Duration(seconds: 15);
@@ -25,13 +26,21 @@ mixin AutoRefreshState<T extends StatefulWidget> on State<T>, WidgetsBindingObse
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this);
-    _refreshSubscription = DataRefreshBus.instance.changes.listen((_) => _runAutoRefresh());
-    _autoRefreshTimer = Timer.periodic(autoRefreshInterval, (_) => _runAutoRefresh());
+
+    _refreshSubscription =
+        DataRefreshBus.instance.changes.listen((_) => _runAutoRefresh());
+
+    _autoRefreshTimer =
+        Timer.periodic(autoRefreshInterval, (_) => _runAutoRefresh());
+
+    _lifecycleListener = AppLifecycleListener(
+      onResume: () => _runAutoRefresh(),
+    );
   }
 
   Future<void> _runAutoRefresh() async {
     if (!mounted || _autoRefreshRunning) return;
+
     _autoRefreshRunning = true;
     try {
       await refreshData();
@@ -41,17 +50,10 @@ mixin AutoRefreshState<T extends StatefulWidget> on State<T>, WidgetsBindingObse
   }
 
   @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      _runAutoRefresh();
-    }
-  }
-
-  @override
   void dispose() {
     _autoRefreshTimer?.cancel();
     _refreshSubscription?.cancel();
-    WidgetsBinding.instance.removeObserver(this);
+    _lifecycleListener?.dispose();
     super.dispose();
   }
 }
