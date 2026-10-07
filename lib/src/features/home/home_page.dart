@@ -41,6 +41,7 @@ class _HomePageState extends State<HomePage> with AutoRefreshState<HomePage> {
       setState(() {
         customer = results[0];
         summary = results[1];
+        error = null;
         loading = false;
       });
     } on ApiException catch (e) {
