@@ -110,8 +110,8 @@ class _HomePageState extends State<HomePage> {
       bottomNavigationBar: NavigationBar(
         selectedIndex: 0,
         onDestinationSelected: (index) {
-          if (index == 1) Navigator.push(context, MaterialPageRoute(builder: (_) => const PaymentsPage()));
-          if (index == 2) Navigator.push(context, MaterialPageRoute(builder: (_) => const DevicePage()));
+          if (index == 1) Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const PaymentsPage()));
+          if (index == 2) Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const DevicePage()));
         },
         destinations: [
           NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: Icon(Icons.home_rounded), label: 'Inicio'),
@@ -217,7 +217,7 @@ class _DeviceCard extends StatelessWidget {
         : [device!['storage'], device!['color']].where((e) => e != null && e.toString().trim().isNotEmpty).join(' · ');
     return Card(child: InkWell(
       borderRadius: BorderRadius.circular(24),
-      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const DevicePage())),
+      onTap: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const DevicePage())),
       child: Padding(
         padding: const EdgeInsets.all(18),
         child: Row(children: [
@@ -274,38 +274,48 @@ class _AppDrawer extends StatelessWidget {
   Widget build(BuildContext context) {
     final name = customer?['fullName']?.toString() ?? 'Mi cuenta';
     final number = customer?['customerNumber']?.toString() ?? '';
-    return Drawer(child: SafeArea(child: Column(children: [
-      Padding(
-        padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
-        child: Row(children: [
-          const BrandLogo(size: 54, borderRadius: 16),
-          const SizedBox(width: 12),
-          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(name, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
-            if (number.isNotEmpty) Text('Cliente $number', style: const TextStyle(color: Color(0xFF667085), fontSize: 12)),
-          ])),
-        ]),
+    return Drawer(
+      child: SafeArea(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
+              child: Row(children: [
+                const BrandLogo(size: 54, borderRadius: 16),
+                const SizedBox(width: 12),
+                Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Text(name, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
+                  if (number.isNotEmpty) Text('Cliente $number', style: const TextStyle(color: Color(0xFF667085), fontSize: 12)),
+                ])),
+              ]),
+            ),
+            const Divider(height: 1),
+            const SizedBox(height: 8),
+            const _DrawerItem(Icons.home_outlined, 'Inicio'),
+            _DrawerItem(Icons.account_balance_wallet_outlined, 'Mi crédito', onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const CreditPage()))),
+            _DrawerItem(Icons.calendar_month_outlined, 'Calendario de pagos', onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const CreditPage()))),
+            _DrawerItem(Icons.receipt_long_outlined, 'Pagos y recibos', onTap: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const PaymentsPage()))),
+            _DrawerItem(Icons.smartphone_outlined, 'Mi equipo', onTap: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const DevicePage()))),
+            _DrawerItem(Icons.description_outlined, 'Contrato y documentos', onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const DocumentsPage()))),
+            _DrawerItem(Icons.person_outline_rounded, 'Mi perfil', onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfilePage()))),
+            const Padding(
+              padding: EdgeInsets.fromLTRB(20, 18, 20, 6),
+              child: Text('AYUDA', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, letterSpacing: .8, color: Color(0xFF98A2B3))),
+            ),
+            _DrawerItem(Icons.help_outline_rounded, 'Ayuda y soporte', onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SupportCenterPage()))),
+            const Divider(height: 24),
+            ListTile(
+              contentPadding: const EdgeInsets.symmetric(horizontal: 20),
+              leading: const Icon(Icons.logout_rounded, color: Color(0xFF475467)),
+              title: const Text('Cerrar sesión', style: TextStyle(fontWeight: FontWeight.w600)),
+              onTap: () async { Navigator.pop(context); await onLogout(); },
+            ),
+            const SizedBox(height: 12),
+          ],
+        ),
       ),
-      const Divider(height: 1),
-      const SizedBox(height: 8),
-      const _DrawerItem(Icons.home_outlined, 'Inicio'),
-      _DrawerItem(Icons.account_balance_wallet_outlined, 'Mi crédito', onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const CreditPage()))),
-      _DrawerItem(Icons.calendar_month_outlined, 'Calendario de pagos', onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const CreditPage()))),
-      _DrawerItem(Icons.receipt_long_outlined, 'Pagos y recibos', onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PaymentsPage()))),
-      _DrawerItem(Icons.smartphone_outlined, 'Mi equipo', onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const DevicePage()))),
-      _DrawerItem(Icons.description_outlined, 'Contrato y documentos', onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const DocumentsPage()))),
-      _DrawerItem(Icons.person_outline_rounded, 'Mi perfil', onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfilePage()))),
-      const Spacer(),
-      const Divider(height: 1),
-      _DrawerItem(Icons.help_outline_rounded, 'Ayuda y soporte', onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SupportCenterPage()))),
-      ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 20),
-        leading: const Icon(Icons.logout_rounded, color: Color(0xFF475467)),
-        title: const Text('Cerrar sesión', style: TextStyle(fontWeight: FontWeight.w600)),
-        onTap: () async { Navigator.pop(context); await onLogout(); },
-      ),
-      const SizedBox(height: 12),
-    ])));
+    );
   }
 }
 
