@@ -3,6 +3,8 @@ import 'package:intl/intl.dart';
 import '../../core/api/api_client.dart';
 import '../auth/auth_service.dart';
 import 'payment_checkout_page.dart';
+import '../home/home_page.dart';
+import '../device/device_page.dart';
 
 class PaymentsPage extends StatefulWidget {
   const PaymentsPage({super.key});
@@ -53,6 +55,18 @@ class _PaymentsPageState extends State<PaymentsPage> {
               itemBuilder: (_, i) => Padding(padding: const EdgeInsets.only(bottom: 10), child: _PaymentCard(payment: Map<String, dynamic>.from(payments[i] as Map))),
             ),
       ),
+    bottomNavigationBar: NavigationBar(
+      selectedIndex: 1,
+      onDestinationSelected: (index) {
+        if (index == 0) Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const HomePage()));
+        if (index == 2) Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const DevicePage()));
+      },
+      destinations: const [
+        NavigationDestination(icon: Icon(Icons.home_outlined), label: 'Inicio'),
+        NavigationDestination(icon: Icon(Icons.payments_outlined), selectedIcon: Icon(Icons.payments_rounded), label: 'Pagos'),
+        NavigationDestination(icon: Icon(Icons.smartphone_outlined), label: 'Mi equipo'),
+      ],
+    ),
   );
 }
 
