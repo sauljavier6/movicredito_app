@@ -49,6 +49,11 @@ class AuthService {
     return data;
   }
   Future<Map<String, dynamic>> notifications() => api.getJson('/api/customer-auth/notifications', authenticated: true);
+  Future<Map<String, dynamic>> readNotification(String id) async {
+    final data = await api.patchJson('/api/customer-auth/notifications/$id/read', {}, authenticated: true);
+    DataRefreshBus.instance.invalidate();
+    return data;
+  }
   Future<Map<String, dynamic>> reminders() => api.getJson('/api/customer-auth/reminders', authenticated: true);
   Future<Map<String, dynamic>> setReminder(String installmentId, int daysBefore) async {
     final data = await api.postJson('/api/customer-auth/reminders', {'installmentId': installmentId, 'daysBefore': daysBefore}, authenticated: true);
