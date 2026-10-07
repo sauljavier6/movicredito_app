@@ -22,6 +22,7 @@ class _HomePageState extends State<HomePage> with AutoRefreshState<HomePage> {
   Map<String, dynamic>? customer;
   Map<String, dynamic>? summary;
   bool loading = true;
+  int unreadNotifications = 0;
   String? error;
 
   @override
@@ -36,11 +37,12 @@ class _HomePageState extends State<HomePage> with AutoRefreshState<HomePage> {
   Future<void> _load({bool silent = false}) async {
     if (!silent && mounted) setState(() { loading = true; error = null; });
     try {
-      final results = await Future.wait([auth.me(), auth.summary()]);
+      final results = await Future.wait([auth.me(), auth.summary(), auth.notifications()]);
       if (!mounted) return;
       setState(() {
         customer = results[0];
         summary = results[1];
+        unreadNotifications = int.tryParse(results[2]['unread']?.toString() ?? '0') ?? 0;
         error = null;
         loading = false;
       });
@@ -75,7 +77,24 @@ class _HomePageState extends State<HomePage> with AutoRefreshState<HomePage> {
           SizedBox(width: 10),
           Text('MoviCrédito', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 19)),
         ]),
-        actions: [IconButton(onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SupportCenterPage())), tooltip: 'Notificaciones y ayuda', icon: const Icon(Icons.notifications_none_rounded)), const SizedBox(width: 8)],
+        actions: [
+          IconButton(
+            onPressed: () async {
+              await Navigator.push(context, MaterialPageRoute(builder: (_) => const SupportCenterPage()));
+              await _load(silent: true);
+            },
+            tooltip: unreadNotifications > 0 ? '$unreadNotifications notificación(es) nueva(s)' : 'Notificaciones y ayuda',
+            icon: Badge(
+              isLabelVisible: unreadNotifications > 0,
+              label: Text(unreadNotifications > 99 ? '99+' : '$unreadNotifications'),
+              child: Icon(
+                unreadNotifications > 0 ? Icons.notifications_active_rounded : Icons.notifications_none_rounded,
+                color: unreadNotifications > 0 ? const Color(0xFF175CD3) : null,
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+        ],
       ),
       body: loading
           ? const Center(child: CircularProgressIndicator())
