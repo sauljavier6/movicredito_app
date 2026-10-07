@@ -241,6 +241,31 @@ class _SupportCenterPageState extends State<SupportCenterPage> with AutoRefreshS
                   '${_date(notification['createdAt'])}',
                 ),
               ),
+              onTap: () async {
+                if (!read) {
+                  await auth.readNotification(notification['id'].toString());
+                  if (!mounted) return;
+                  await _load();
+                }
+                final referenceId = notification['referenceId']?.toString();
+                if (notification['referenceType'] == 'support_ticket' && referenceId != null) {
+                  Map<String, dynamic>? ticket;
+                  for (final raw in tickets) {
+                    final candidate = Map<String, dynamic>.from(raw as Map);
+                    if (candidate['id']?.toString() == referenceId) {
+                      ticket = candidate;
+                      break;
+                    }
+                  }
+                  if (ticket != null && mounted) {
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => SupportThreadPage(ticket: ticket!)),
+                    );
+                    await _load();
+                  }
+                }
+              },
             ),
           );
         },
@@ -308,13 +333,30 @@ class _SupportThreadPageState extends State<SupportThreadPage> with AutoRefreshS
     final text = input.text.trim();
     if (text.isEmpty || sending) return;
 
-    setState(() => sending = true);
+    final optimistic = <String, dynamic>{
+      'id': 'local-${DateTime.now().microsecondsSinceEpoch}',
+      'senderType': 'customer',
+      'message': text,
+      'createdAt': DateTime.now().toIso8601String(),
+    };
+
+    input.clear();
+    setState(() {
+      sending = true;
+      messages = [...messages, optimistic];
+    });
+
     try {
       await auth.replySupport(widget.ticket['id'].toString(), text);
-      input.clear();
       await _load();
     } catch (_) {
       if (!mounted) return;
+      setState(() {
+        messages = messages.where((item) {
+          final row = Map<String, dynamic>.from(item as Map);
+          return row['id'] != optimistic['id'];
+        }).toList();
+      });
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('No fue posible enviar el mensaje.')),
       );
