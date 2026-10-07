@@ -256,7 +256,9 @@ class _SupportCenterPageState extends State<SupportCenterPage> with AutoRefreshS
               } catch (_) {
                 if (!mounted) return;
                 setState(() {
-                  final restoreAt = removedIndex.clamp(0, notifications.length);
+                  final restoreAt = removedIndex > notifications.length
+                      ? notifications.length
+                      : removedIndex;
                   notifications.insert(restoreAt, removed);
                 });
                 ScaffoldMessenger.of(context).showSnackBar(
