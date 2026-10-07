@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../auth/auth_service.dart';
+import '../../core/refresh/auto_refresh_state.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -8,7 +9,7 @@ class ProfilePage extends StatefulWidget {
   State<ProfilePage> createState() => _ProfilePageState();
 }
 
-class _ProfilePageState extends State<ProfilePage> {
+class _ProfilePageState extends State<ProfilePage> with AutoRefreshState<ProfilePage> {
   final auth = AuthService();
   Map<String, dynamic>? customer;
   bool loading = true;
@@ -19,6 +20,9 @@ class _ProfilePageState extends State<ProfilePage> {
     super.initState();
     _load();
   }
+
+  @override
+  Future<void> refreshData() => _load();
 
   Future<void> _load() async {
     try {
