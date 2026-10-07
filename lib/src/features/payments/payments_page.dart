@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../core/api/api_client.dart';
+import '../../widgets/app_drawer.dart';
 import '../auth/auth_service.dart';
 import 'payment_checkout_page.dart';
 import '../home/home_page.dart';
@@ -31,6 +32,7 @@ class _PaymentsPageState extends State<PaymentsPage> {
   }
 
   @override Widget build(BuildContext context) => Scaffold(
+    drawer: const AppDrawer(currentSection: 'payments'),
     appBar: AppBar(
       title: const Text('Pagos y recibos', style: TextStyle(fontWeight: FontWeight.w800)),
       actions: [IconButton(tooltip: 'Realizar pago', icon: const Icon(Icons.add_card_rounded), onPressed: () async { final paid = await Navigator.push<bool>(context, MaterialPageRoute(builder: (_) => const PaymentCheckoutPage())); if (paid == true) _load(); })],
