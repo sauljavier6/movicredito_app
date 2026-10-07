@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../core/api/api_client.dart';
 import '../auth/auth_service.dart';
+import 'payment_checkout_page.dart';
 
 class PaymentsPage extends StatefulWidget {
   const PaymentsPage({super.key});
@@ -28,7 +29,10 @@ class _PaymentsPageState extends State<PaymentsPage> {
   }
 
   @override Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const Text('Pagos y recibos', style: TextStyle(fontWeight: FontWeight.w800))),
+    appBar: AppBar(
+      title: const Text('Pagos y recibos', style: TextStyle(fontWeight: FontWeight.w800)),
+      actions: [IconButton(tooltip: 'Realizar pago', icon: const Icon(Icons.add_card_rounded), onPressed: () async { final paid = await Navigator.push<bool>(context, MaterialPageRoute(builder: (_) => const PaymentCheckoutPage())); if (paid == true) _load(); })],
+    ),
     body: loading ? const Center(child: CircularProgressIndicator()) :
       error != null ? _Error(message: error!, retry: () { setState(() => loading = true); _load(); }) :
       RefreshIndicator(
