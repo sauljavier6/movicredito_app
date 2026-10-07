@@ -1,4 +1,5 @@
 import '../../core/api/api_client.dart';
+import '../../core/refresh/auto_refresh_state.dart';
 
 class AuthService {
   AuthService({ApiClient? api}) : api = api ?? ApiClient();
@@ -30,14 +31,30 @@ class AuthService {
   Future<Map<String, dynamic>> payments() => api.getJson('/api/customer-auth/payments', authenticated: true);
   Future<Map<String, dynamic>> documents() => api.getJson('/api/customer-auth/documents', authenticated: true);
   Future<Map<String, dynamic>> createPaymentCheckout() => api.postJson('/api/customer-auth/payment-checkout', {}, authenticated: true);
-  Future<Map<String, dynamic>> syncPaymentCheckout(String id) => api.postJson('/api/customer-auth/payment-checkout/$id/sync', {}, authenticated: true);
+  Future<Map<String, dynamic>> syncPaymentCheckout(String id) async {
+    final data = await api.postJson('/api/customer-auth/payment-checkout/$id/sync', {}, authenticated: true);
+    DataRefreshBus.instance.invalidate();
+    return data;
+  }
   Future<Map<String, dynamic>> supportTickets() => api.getJson('/api/customer-auth/support', authenticated: true);
-  Future<Map<String, dynamic>> createSupportTicket(String subject, String category, String message) => api.postJson('/api/customer-auth/support', {'subject': subject, 'category': category, 'message': message}, authenticated: true);
+  Future<Map<String, dynamic>> createSupportTicket(String subject, String category, String message) async {
+    final data = await api.postJson('/api/customer-auth/support', {'subject': subject, 'category': category, 'message': message}, authenticated: true);
+    DataRefreshBus.instance.invalidate();
+    return data;
+  }
   Future<Map<String, dynamic>> supportMessages(String id) => api.getJson('/api/customer-auth/support/$id/messages', authenticated: true);
-  Future<Map<String, dynamic>> replySupport(String id, String message) => api.postJson('/api/customer-auth/support/$id/messages', {'message': message}, authenticated: true);
+  Future<Map<String, dynamic>> replySupport(String id, String message) async {
+    final data = await api.postJson('/api/customer-auth/support/$id/messages', {'message': message}, authenticated: true);
+    DataRefreshBus.instance.invalidate();
+    return data;
+  }
   Future<Map<String, dynamic>> notifications() => api.getJson('/api/customer-auth/notifications', authenticated: true);
   Future<Map<String, dynamic>> reminders() => api.getJson('/api/customer-auth/reminders', authenticated: true);
-  Future<Map<String, dynamic>> setReminder(String installmentId, int daysBefore) => api.postJson('/api/customer-auth/reminders', {'installmentId': installmentId, 'daysBefore': daysBefore}, authenticated: true);
+  Future<Map<String, dynamic>> setReminder(String installmentId, int daysBefore) async {
+    final data = await api.postJson('/api/customer-auth/reminders', {'installmentId': installmentId, 'daysBefore': daysBefore}, authenticated: true);
+    DataRefreshBus.instance.invalidate();
+    return data;
+  }
 
   Future<bool> hasSession() async {
     final token = await api.readToken();
