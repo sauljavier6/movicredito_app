@@ -24,5 +24,22 @@ class AuthService {
   Future<Map<String, dynamic>> startReset(String login) =>
       api.postJson('/api/customer-auth/password/reset/start', {'login': login.trim()});
 
+  Future<Map<String, dynamic>> me() => api.getJson('/api/customer-auth/me', authenticated: true);
   Future<Map<String, dynamic>> summary() => api.getJson('/api/customer-auth/summary', authenticated: true);
+
+  Future<bool> hasSession() async {
+    final token = await api.readToken();
+    if (token == null || token.isEmpty) return false;
+    try {
+      await me();
+      return true;
+    } on ApiException catch (e) {
+      if (e.statusCode == 401 || e.statusCode == 403) await api.clearToken();
+      return false;
+    } catch (_) {
+      return true;
+    }
+  }
+
+  Future<void> logout() => api.clearToken();
 }
