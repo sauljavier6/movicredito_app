@@ -26,7 +26,7 @@ class _SupportCenterPageState extends State<SupportCenterPage> with AutoRefreshS
   }
 
   @override
-  Duration get autoRefreshInterval => const Duration(seconds: 7);
+  Duration get autoRefreshInterval => const Duration(seconds: 30);
 
   @override
   Future<void> refreshData() => _load();
@@ -358,7 +358,7 @@ class _SupportThreadPageState extends State<SupportThreadPage> with AutoRefreshS
   }
 
   @override
-  Duration get autoRefreshInterval => const Duration(seconds: 3);
+  Duration get autoRefreshInterval => const Duration(seconds: 30);
 
   @override
   Future<void> refreshData() => _load();
