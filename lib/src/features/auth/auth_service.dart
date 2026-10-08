@@ -1,5 +1,6 @@
 import '../../core/api/api_client.dart';
 import '../../core/refresh/auto_refresh_state.dart';
+import '../../core/realtime/realtime_service.dart';
 
 class AuthService {
   AuthService({ApiClient? api}) : api = api ?? ApiClient();
@@ -8,7 +9,10 @@ class AuthService {
   Future<Map<String, dynamic>> login(String login, String password) async {
     final data = await api.postJson('/api/customer-auth/login', {'login': login.trim(), 'password': password});
     final token = data['token'];
-    if (token is String) await api.saveToken(token);
+    if (token is String) {
+      await api.saveToken(token);
+      RealtimeService.instance.connect(token);
+    }
     return data;
   }
 
@@ -71,14 +75,19 @@ class AuthService {
     if (token == null || token.isEmpty) return false;
     try {
       await me();
+      RealtimeService.instance.connect(token);
       return true;
     } on ApiException catch (e) {
-      if (e.statusCode == 401 || e.statusCode == 403) await api.clearToken();
+      if (e.statusCode == 401 || e.statusCode == 403) await logout();
       return false;
     } catch (_) {
+      RealtimeService.instance.connect(token);
       return true;
     }
   }
 
-  Future<void> logout() => api.clearToken();
+  Future<void> logout() async {
+    RealtimeService.instance.disconnect();
+    await api.clearToken();
+  }
 }
