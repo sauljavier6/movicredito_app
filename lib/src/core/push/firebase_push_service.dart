@@ -74,9 +74,9 @@ class FirebasePushService {
     _bound = false;
     final token = _registeredToken;
     _registeredToken = null;
-    if (token == null) return;
+    if (!_ready) return;
     try {
-      await ApiClient().deleteJsonWithBody(
+      if (token != null) await ApiClient().deleteJsonWithBody(
         '/api/customer-auth/push-tokens',
         {'token': token},
         authenticated: true,
@@ -84,6 +84,12 @@ class FirebasePushService {
     } catch (error) {
       // ignore: avoid_print
       print('FCM no pudo desvincular token: $error');
+    } finally {
+      try {
+        await FirebaseMessaging.instance.deleteToken();
+      } catch (_) {
+        // No impedir el cierre de sesión si Firebase no está disponible.
+      }
     }
   }
 }
