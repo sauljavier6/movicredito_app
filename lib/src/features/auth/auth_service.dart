@@ -1,6 +1,7 @@
 import '../../core/api/api_client.dart';
 import '../../core/refresh/auto_refresh_state.dart';
 import '../../core/realtime/realtime_service.dart';
+import '../../core/push/firebase_push_service.dart';
 
 class AuthService {
   AuthService({ApiClient? api}) : api = api ?? ApiClient();
@@ -12,6 +13,7 @@ class AuthService {
     if (token is String) {
       await api.saveToken(token);
       RealtimeService.instance.connect(token);
+      await FirebasePushService.instance.bindSession();
     }
     return data;
   }
@@ -22,7 +24,11 @@ class AuthService {
   Future<Map<String, dynamic>> completeRegistration(String challengeId, String code, String password) async {
     final data = await api.postJson('/api/customer-auth/register/complete', {'challengeId': challengeId, 'code': code.trim(), 'password': password});
     final token = data['token'];
-    if (token is String) await api.saveToken(token);
+    if (token is String) {
+      await api.saveToken(token);
+      RealtimeService.instance.connect(token);
+      await FirebasePushService.instance.bindSession();
+    }
     return data;
   }
 
@@ -76,6 +82,7 @@ class AuthService {
     try {
       await me();
       RealtimeService.instance.connect(token);
+      await FirebasePushService.instance.bindSession();
       return true;
     } on ApiException catch (e) {
       if (e.statusCode == 401 || e.statusCode == 403) await logout();
@@ -88,6 +95,7 @@ class AuthService {
 
   Future<void> logout() async {
     RealtimeService.instance.disconnect();
+    await FirebasePushService.instance.unbindSession();
     await api.clearToken();
   }
 }
