@@ -22,12 +22,12 @@ dev_dependencies:
 flutter:
   uses-material-design: true
 
-# Usa el mismo logo que movicredito_frontend/public/logo.jpg.
-# Ejecutar scripts/setup_launcher_icon.cmd antes de generar los iconos Android.
+# Coloca los 3 PNG de movicredito_iconos_android.zip en assets/icon/.
+# Luego ejecuta scripts/setup_launcher_icon.cmd para generar los iconos Android.
 flutter_launcher_icons:
   android: true
   ios: false
-  image_path: "assets/icon/app_icon.jpg"
-  adaptive_icon_background: "#102C50"
-  adaptive_icon_foreground: "assets/icon/app_icon.jpg"
+  image_path: "assets/icon/launcher_icon.png"
+  adaptive_icon_background: "assets/icon/adaptive_background.png"
+  adaptive_icon_foreground: "assets/icon/adaptive_foreground.png"
   adaptive_icon_foreground_inset: 0
